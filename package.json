@@ -1,20 +1,23 @@
 {
   "name": "qyx-volcegine-tos",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "基于@volcengine/tos-sdk的二次封装",
   "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
     "@types/node": "^24.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@volcengine/tos-sdk": "^2.7.6"
+    "@volcengine/tos-sdk": "^2.7.6",
+    "lodash-es": "^4.17.22"
   }
 }

@@ -1,35 +1,84 @@
-import { UploadPart } from '@volcengine/tos-sdk-js';
-// 外部提供一个函数，返回当前的认证配置（支持异步刷新）
-export type CredentialsProvider = () => Promise<{
+import type TOS from '@volcengine/tos-sdk';
+
+export interface Credentials {
   accessKeyId: string;
   accessKeySecret: string;
-  region: string; // 填写 Bucket 所在地域。
-  endpoint: string; // 填写域名地址
+  securityToken?: string;
   sessionToken?: string;
-}>;
-
-// 外部可持久化的断点状态
-export interface MultipartUploadState {
-  uploadId: string;
-  key: string;
-  bucket: string;
-  uploadedParts: UploadPart[]; // 官方类型：{ PartNumber: number, ETag: string }
-}
-
-export interface UploadOptions {
-  partSize?: number; // 分片大小，默认 5MB
-  onProgress?: (percent: number) => void;
-  resumeState?: MultipartUploadState; // 可选：用于断点续传
-}
-
-export interface ResumeUploadOptions extends UploadOptions {
-  resumeState?: MultipartUploadState;
-}
-
-// 初始化配置
-export interface TOSUploaderConfig {
-  credentials: CredentialsProvider; // 动态获取密钥的方法
   endpoint: string;
   region: string;
+  bucket?: string;
+  rootPath?: string;
+  cdnUrl?: string;
+  enableCdn?: boolean;
+  expiration?: number;
+}
+
+
+export interface UploadProgress {
+  percent: number; // Add this line
+  loaded?: number;
+  total?: number;
+  [key: string]: any; // Optional: allow additional properties
+}
+
+
+export interface QyxVolcegineTosConfig {
+  headers?: Record<string, string>;
+}
+// In your types/index.ts or relevant type declaration file
+export interface QyxVolcegineTosOptions {
+  async?: boolean;
+  rootPath?: string;
+  rename?: boolean;
+  enableCdn?: boolean;
+  requestTimeout?: number;
+  connectionTimeout?: number;
+  cdnUrl?: string;
+  maxRetryCount?: number;
+  partSize?: number;
+  parallel?: number;
+  refreshSTSTokenInterval?: number;
+  config?: {
+    headers?: Record<string, string>;
+  };
+  getOptions: () => Promise<{
+    accessKeyId: string;
+    accessKeySecret: string;
+    securityToken: string;
+    bucket: string;
+    endpoint: string;
+    region: string;
+    expiration: number;
+    rootPath?: string;
+    cdnUrl?: string;
+    enableCdn?: boolean;
+  }>;
+  bucket?: string;
+  endpoint?: string;
+  expiration?: number;
+  region?: string;
+}
+export interface Task {
+  id: string;
+  file: File;
+  status: 'pending' | 'uploading' | 'paused' | 'success' | 'failed' | 'cancelled';
+  controller: AbortController;
+  partSize: number;
+  progress: ((progress: UploadProgress) => void) | null;
+  abortSignal: AbortSignal;
+  fileName: string;
+  uploadedBytes: number;
+  totalBytes: number;
+  rename: boolean;
   bucket: string;
+  key: string | null;
+  cancelTokenSource: ReturnType<typeof TOS.CancelToken.source>;
+  checkpoint?: Checkpoint;
+  [key: string]: any;
+}
+
+export interface PutObjectConfig {
+  rename?: boolean;
+  bucket?: string;
 }
