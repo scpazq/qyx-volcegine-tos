@@ -1,13 +1,16 @@
 {
   "name": "qyx-volcegine-tos",
-  "version": "0.0.3",
-  "main": "index.js",
+  "version": "0.0.4",
+  "main": "dist/index.js", 
+  "module": "dist/esm/index.js",
   "scripts": {
-    "build": "tsc",
+    "build:cjs": "tsc",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build": "npm run build:cjs && npm run build:esm",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "zhangqin",
   "license": "ISC",
   "description": "基于@volcengine/tos-sdk的二次封装",
   "devDependencies": {
