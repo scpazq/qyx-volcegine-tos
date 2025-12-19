@@ -101,7 +101,7 @@ async function multipartUpload() {
 ```
 **断点续传暂停**
 ```
-async function addMultipartUpload(taskId) {
+async function pauseUpload(taskId) {
     await client.pause(taskId)
 }
 
@@ -125,7 +125,7 @@ async function resumeUpload(abortCheckpoint, file) {
 ```
 **断点续传取消**
 ```
-async function addMultipartUpload(abortCheckpoint，taskId) {
+async function cancUpload(abortCheckpoint，taskId) {
     await client.cancel(abortCheckpoint.name, abortCheckpoint.uploadId, taskId)
 }
 
