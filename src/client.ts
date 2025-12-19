@@ -137,7 +137,7 @@ export class QyxVolcegineTos {
       controller,
       ...options,
       partSize: options.partSize ?? this.opts.partSize ?? 5 * 1024 * 1024, // 默认 5MB
-      progress: options.progress || null,
+      progress: options.progress || undefined,
       abortSignal: controller.signal,
       fileName,
       // 内部状态
@@ -189,7 +189,9 @@ export class QyxVolcegineTos {
         file: task.file,
         partSize: task.partSize,
         checkpoint: checkpoint as any | undefined, // 恢复点
-        progress: task.sprogress,
+        progress: task.progress 
+          ? (percent: number, checkpoint: any) => task.progress!({ percent, ...checkpoint })
+          : undefined,
         // signal: abortSignal, // 支持 AbortController 暂停/取消
         cancelToken: task.cancelTokenSource.token
       });

@@ -111,7 +111,7 @@ export class QyxVolcegineTos {
             controller,
             ...options,
             partSize: (_b = (_a = options.partSize) !== null && _a !== void 0 ? _a : this.opts.partSize) !== null && _b !== void 0 ? _b : 5 * 1024 * 1024,
-            progress: options.progress || null,
+            progress: options.progress || undefined,
             abortSignal: controller.signal,
             fileName,
             uploadedBytes: 0,
@@ -158,7 +158,9 @@ export class QyxVolcegineTos {
                 file: task.file,
                 partSize: task.partSize,
                 checkpoint: checkpoint,
-                progress: task.sprogress,
+                progress: task.progress
+                    ? (percent, checkpoint) => task.progress({ percent, ...checkpoint })
+                    : undefined,
                 cancelToken: task.cancelTokenSource.token
             });
             task.status = 'success';

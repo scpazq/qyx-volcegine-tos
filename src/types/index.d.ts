@@ -17,8 +17,6 @@ export interface Credentials {
 
 export interface UploadProgress {
   percent: number; // Add this line
-  loaded?: number;
-  total?: number;
   [key: string]: any; // Optional: allow additional properties
 }
 
@@ -65,7 +63,7 @@ export interface Task {
   status: 'pending' | 'uploading' | 'paused' | 'success' | 'failed' | 'cancelled';
   controller: AbortController;
   partSize: number;
-  progress: ((progress: UploadProgress) => void) | null;
+  progress?: ((progress: UploadProgress) => void) | null | undefined;
   abortSignal: AbortSignal;
   fileName: string;
   uploadedBytes: number;
