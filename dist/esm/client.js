@@ -159,7 +159,7 @@ export class QyxVolcegineTos {
                 partSize: task.partSize,
                 checkpoint: checkpoint,
                 progress: task.progress
-                    ? (percent, checkpoint) => task.progress({ percent, ...checkpoint })
+                    ? (percent, checkpoint) => task.progress(percent, checkpoint)
                     : undefined,
                 cancelToken: task.cancelTokenSource.token
             });

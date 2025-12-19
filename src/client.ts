@@ -190,7 +190,7 @@ export class QyxVolcegineTos {
         partSize: task.partSize,
         checkpoint: checkpoint as any | undefined, // 恢复点
         progress: task.progress 
-          ? (percent: number, checkpoint: any) => task.progress!({ percent, ...checkpoint })
+          ? (percent: number, checkpoint: any) => task.progress!(percent, checkpoint)
           : undefined,
         // signal: abortSignal, // 支持 AbortController 暂停/取消
         cancelToken: task.cancelTokenSource.token

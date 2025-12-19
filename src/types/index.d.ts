@@ -63,7 +63,7 @@ export interface Task {
   status: 'pending' | 'uploading' | 'paused' | 'success' | 'failed' | 'cancelled';
   controller: AbortController;
   partSize: number;
-  progress?: ((progress: UploadProgress) => void) | null | undefined;
+  progress?: ((progress: number, checkpoint: any) => void) | null | undefined;
   abortSignal: AbortSignal;
   fileName: string;
   uploadedBytes: number;
