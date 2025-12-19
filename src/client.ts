@@ -144,7 +144,6 @@ export class QyxVolcegineTos {
       uploadedBytes: 0,
       totalBytes: file.size,
       rename: options.rename ?? this.opts.rename ?? true, // 添加这个用于后续生成 key
-      bucket: this.opts.bucket ?? (() => { throw new Error('Bucket is required but not provided'); })(),
       key: null,
       cancelTokenSource,
     };

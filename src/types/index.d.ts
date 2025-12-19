@@ -71,7 +71,6 @@ export interface Task {
   uploadedBytes: number;
   totalBytes: number;
   rename: boolean;
-  bucket: string;
   key: string | null;
   cancelTokenSource: ReturnType<typeof TOS.CancelToken.source>;
   checkpoint?: Checkpoint;

@@ -121,7 +121,6 @@ class QyxVolcegineTos {
             uploadedBytes: 0,
             totalBytes: file.size,
             rename: options.rename ?? this.opts.rename ?? true,
-            bucket: this.opts.bucket ?? (() => { throw new Error('Bucket is required but not provided'); })(),
             key: null,
             cancelTokenSource,
         };
