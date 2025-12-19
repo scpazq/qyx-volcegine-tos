@@ -61,15 +61,16 @@ class QyxVolcegineTos {
         return this.client;
     }
     async putObject(fileName, file, config = {}) {
+        var _a, _b, _c, _d;
         try {
             await this.init();
             const rename = config.hasOwnProperty('rename')
-                ? config?.rename
+                ? config === null || config === void 0 ? void 0 : config.rename
                 : this.opts.rename;
             const key = (0, util_1.generateFilename)({
                 fileName,
                 rename,
-                rootPath: this.opts.rootPath ?? '',
+                rootPath: (_a = this.opts.rootPath) !== null && _a !== void 0 ? _a : '',
             });
             const result = await this.client.putObject({
                 key,
@@ -77,14 +78,14 @@ class QyxVolcegineTos {
                 bucket: config.bucket || this.opts.bucket,
                 headers: {
                     'Content-Type': file.type,
-                    ...(this.opts.config?.headers || {}),
+                    ...(((_b = this.opts.config) === null || _b === void 0 ? void 0 : _b.headers) || {}),
                 }
             });
             return ((0, format_1.formatResponse)({
                 relationPath: key,
                 data: result,
-                enableCdn: this.opts?.enableCdn,
-                cdnUrl: this.opts?.cdnUrl,
+                enableCdn: (_c = this.opts) === null || _c === void 0 ? void 0 : _c.enableCdn,
+                cdnUrl: (_d = this.opts) === null || _d === void 0 ? void 0 : _d.cdnUrl,
                 bucket: config.bucket || this.opts.bucket,
                 endpoint: this.opts.endpoint,
             }));
@@ -94,6 +95,7 @@ class QyxVolcegineTos {
         }
     }
     addMultipartUpload(fileName, file, options = {}, oldTaskId) {
+        var _a, _b, _c, _d;
         if (oldTaskId && this.tasks.has(oldTaskId)) {
             const controller = new AbortController();
             let cancelTokenSource = tos_sdk_1.default.CancelToken.source();
@@ -114,13 +116,13 @@ class QyxVolcegineTos {
             status: 'pending',
             controller,
             ...options,
-            partSize: options.partSize ?? this.opts.partSize ?? 5 * 1024 * 1024,
+            partSize: (_b = (_a = options.partSize) !== null && _a !== void 0 ? _a : this.opts.partSize) !== null && _b !== void 0 ? _b : 5 * 1024 * 1024,
             progress: options.progress || null,
             abortSignal: controller.signal,
             fileName,
             uploadedBytes: 0,
             totalBytes: file.size,
-            rename: options.rename ?? this.opts.rename ?? true,
+            rename: (_d = (_c = options.rename) !== null && _c !== void 0 ? _c : this.opts.rename) !== null && _d !== void 0 ? _d : true,
             key: null,
             cancelTokenSource,
         };
@@ -128,6 +130,7 @@ class QyxVolcegineTos {
         return taskId;
     }
     async startUpload(taskId) {
+        var _a, _b, _c;
         const task = this.tasks.get(taskId);
         if (!task || task.status === 'cancelled')
             return;
@@ -140,7 +143,7 @@ class QyxVolcegineTos {
             throw initError;
         }
         try {
-            const rename = task.rename ?? this.opts.rename;
+            const rename = (_a = task.rename) !== null && _a !== void 0 ? _a : this.opts.rename;
             let key;
             if (task.checkpoint) {
                 key = task.checkpoint.key;
@@ -149,11 +152,11 @@ class QyxVolcegineTos {
                 key = (0, util_1.generateFilename)({
                     fileName: task.fileName,
                     rename,
-                    rootPath: this.opts.rootPath ?? '',
+                    rootPath: (_b = this.opts.rootPath) !== null && _b !== void 0 ? _b : '',
                 });
             }
             task.key = key;
-            let checkpoint = task?.checkpoint ?? undefined;
+            let checkpoint = (_c = task === null || task === void 0 ? void 0 : task.checkpoint) !== null && _c !== void 0 ? _c : undefined;
             const abortSignal = task.controller.signal;
             const result = await this.client.uploadFile({
                 bucket: this.opts.bucket,
@@ -176,7 +179,7 @@ class QyxVolcegineTos {
             return response;
         }
         catch (error) {
-            if (error?.code === 'CancelError' || error?.name === 'AbortError') {
+            if ((error === null || error === void 0 ? void 0 : error.code) === 'CancelError' || (error === null || error === void 0 ? void 0 : error.name) === 'AbortError') {
                 task.status = 'cancelled';
             }
             else {
