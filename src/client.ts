@@ -158,7 +158,12 @@ export class QyxVolcegineTos {
 
     task.status = 'uploading';
 
-    await this.init();
+    try {
+      await this.init();
+    } catch (initError) {
+      task.status = 'failed';
+      throw initError;
+    }
 
     try {
       const rename = task.rename ?? this.opts.rename;
@@ -200,53 +205,68 @@ export class QyxVolcegineTos {
         endpoint: this.opts.endpoint,
       });
       return response;
-    } catch (error) {
+    } catch (error: any) {
+      // Handle cancellation specifically
+      if (error?.code === 'CancelError' || error?.name === 'AbortError') {
+        task.status = 'cancelled';
+      } else {
+        task.status = 'failed';
+      }
       throw error;
     }
   }
 
   pause(taskId: string): void {
-    const task = this.tasks.get(taskId);
-    if (!task) {
-      return;
-    }
-    task.cancelTokenSource.cancel();
-    if (task && task.status === 'uploading') {
-      task.controller.abort();
-      task.status = 'paused';
+    try {
+      const task = this.tasks.get(taskId);
+      if (!task) {
+        return;
+      }
+      task.cancelTokenSource.cancel();
+      if (task && task.status === 'uploading') {
+        task.controller.abort();
+        task.status = 'paused';
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
   async cancel(key: string | undefined, uploadId: string | undefined, taskId?: string): Promise<void> {
-    if (taskId) {
-      const task = this.tasks.get(taskId);
-      if (task) {
-        task.cancelTokenSource.cancel()
-        task.controller.abort();
-        task.status = 'cancelled';
-        this.tasks.delete(taskId);
-      }
-    }
-    
-    // 1. 中断当前上传（触发 CancelError）
-    await this.init();
-    if (uploadId && key) {
-      try {
-        await this.client!.abortMultipartUpload({
-          bucket: this.opts.bucket,
-          key,
-          uploadId,
-        });
-        console.log(`✅ 已清理服务端分片上传: ${uploadId}`);
-      } catch (err: any) {
-        if (err.statusCode === 404) {
-          console.warn(`⚠️ 分片上传已被清除或不存在: ${uploadId}`);
-        } else {
-          console.error(`❌ 清理失败，请手动处理 uploadId: ${uploadId}`, err);
+    try {
+      if (taskId) {
+        const task = this.tasks.get(taskId);
+        if (task) {
+          task.cancelTokenSource.cancel()
+          task.controller.abort();
+          task.status = 'cancelled';
+          this.tasks.delete(taskId);
         }
       }
-    } else {
-      console.warn(`[Task ${taskId}] 缺少 uploadId，无法清理服务端资源`);
-    }    
+      
+      // 1. 中断当前上传（触发 CancelError）
+      await this.init();
+      if (uploadId && key) {
+        try {
+          await this.client!.abortMultipartUpload({
+            bucket: this.opts.bucket,
+            key,
+            uploadId,
+          });
+          console.log(`✅ 已清理服务端分片上传: ${uploadId}`);
+        } catch (err: any) {
+          if (err.statusCode === 404) {
+            console.warn(`⚠️ 分片上传已被清除或不存在: ${uploadId}`);
+          } else {
+            console.error(`❌ 清理失败，请手动处理 uploadId: ${uploadId}`, err);
+          }
+        }
+      } else {
+        console.warn(`[Task ${taskId}] 缺少 uploadId，无法清理服务端资源`);
+      }
+    }catch(error) {
+      console.error('Error during cancel operation:', error);
+      throw error;
+    } 
   }
 }
